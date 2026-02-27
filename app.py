@@ -15,7 +15,7 @@ headers = {
 
 # Function to call Hugging Face
 def generate_response(question, temperature, max_tokens):
-    
+
     payload = {
         "inputs": question,
         "parameters": {
@@ -26,9 +26,14 @@ def generate_response(question, temperature, max_tokens):
 
     response = requests.post(API_URL, headers=headers, json=payload)
     result = response.json()
-    
-    return result[0]["generated_text"]
 
+    # ✅ Handle different response formats
+    if isinstance(result, list):
+        return result[0].get("generated_text", "No response generated.")
+    elif "error" in result:
+        return f"Error from Hugging Face: {result['error']}"
+    else:
+        return str(result)
 
 # Streamlit UI
 st.title("Enhanced Q&A Chatbot With HuggingFace")
